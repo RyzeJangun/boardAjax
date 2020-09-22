@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace = "Common">
+
+	<!-- 	코드 테이블 에서 셀렉트 박스 리스트 검색 -->
+	<select id="selectCombo" parameterType="map" resultType="egovMap">
+		SELECT
+		  CODE,
+		  COM_KOR
+		FROM CODE_MASTER
+		WHERE
+			CATEGORY = #{category}
+		AND
+			USE_YN     ='Y'
+	</select>
+	
+	<!--  
+	<select id="selectCode" parameterType="String" resultType="egovMap">
+	  select CODE,COM_KOR from CODE_MASTER where CATEGORY = #{profit_cost}
+	</select>-->
+	
+	<!-- 회계정보 리스트 -->
+	<select id="accountList" resultType="AccountVO">
+	 <include refid="paging_header" />
+	 select ACCOUNT_SEQ,PROFIT_COST,BIG_GROUP,MIDDLE_GROUP,SMALL_GROUP,DETAIL_GROUP,
+     PROFIT_COST_NM,BIG_GROUP_NM,MIDDLE_GROUP_NM,SMALL_GROUP_NM,DETAIL_GROUP_NM,
+     COMMENTS,TRANSACTION_MONEY,TRANSACTION_DATE,WRITER 
+     from VW_ACCOUNT_TB
+	 <include refid="paging_footer" />
+	</select>
+	
+	<!-- 페이징 처리 sql문 -->
+	<sql id="paging_header">
+		select *
+		from (
+		    select rownum as rn, A.* from (	
+	</sql>
+	<sql id="paging_footer">
+     	    ) A
+		) where rn between #{start} and #{end}	
+	</sql>
+	
+	<!-- 레코드 갯수 -->
+	<select id="countArticle" resultType="int">		
+ 	 select count(*) from ACCOUNT_TB
+	</select>
+	
+	<!-- 회계등록(추가) -->
+	<insert id="accountJoin" parameterType="AccountVO">
+	<selectKey keyProperty="account_seq" resultType="int" order="BEFORE">
+        select ACCOUNT_SEQ.nextval from dual
+    </selectKey>
+        INSERT INTO ACCOUNT_TB (ACCOUNT_SEQ,PROFIT_COST,BIG_GROUP,MIDDLE_GROUP,SMALL_GROUP,DETAIL_GROUP,COMMENTS,TRANSACTION_MONEY,TRANSACTION_DATE,WRITER) 
+         VALUES(#{account_seq},#{profit_cost},#{big_group},#{middle_group},#{small_group},#{detail_group},#{comments},#{transaction_money},#{transaction_date},#{writer})
+	</insert>
+	
+	<!-- 회계 세부 정보 -->
+	<select id="accountDetail" parameterType="int" resultType="AccountVO">
+	 select ACCOUNT_SEQ,PROFIT_COST,BIG_GROUP,MIDDLE_GROUP,SMALL_GROUP,DETAIL_GROUP,
+     PROFIT_COST_NM,BIG_GROUP_NM,MIDDLE_GROUP_NM,SMALL_GROUP_NM,DETAIL_GROUP_NM,
+     COMMENTS,TRANSACTION_MONEY,TRANSACTION_DATE,WRITER 
+     from VW_ACCOUNT_TB where ACCOUNT_SEQ=#{account_seq}
+	</select>
+	
+	<!--등록된 회계 수정(수정) -->
+	<update id="accountUpdate" parameterType="AccountVO">
+	  update ACCOUNT_TB set PROFIT_COST=#{profit_cost},BIG_GROUP=#{big_group},MIDDLE_GROUP=#{middle_group},
+	  SMALL_GROUP=#{small_group},DETAIL_GROUP=#{detail_group},COMMENTS=#{comments},TRANSACTION_MONEY=#{transaction_money},TRANSACTION_DATE=TO_DATE(#{transaction_date},'YYYY-MM-DD')
+	  where ACCOUNT_SEQ=#{account_seq}
+	</update>
+
+
+
+
+</mapper>

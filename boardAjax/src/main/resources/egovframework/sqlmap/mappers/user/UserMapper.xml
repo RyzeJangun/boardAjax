@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="User">
+
+  <!-- 회원가입(추가) -->
+  <insert id="userJoin" parameterType="UserVO">
+   insert into user_tb(uno,userid,pwd,user_name) values(user_seq.nextval,#{userid},#{pwd},#{user_name})
+  </insert>
+  
+  <!-- 아이디 중복검사  count함수 사용-->
+  <select id="idCkedAjax" parameterType="String" resultType="String">
+   select count(*) from user_tb where userid=#{userid}
+  </select>
+</mapper>
